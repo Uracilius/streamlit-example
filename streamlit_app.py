@@ -1,40 +1,30 @@
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
 
-"""
-# Welcome to Streamlit!
+# Initialize chat messages in session state if not already present
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+# Function to add messages to the chat
+def add_message(role, content):
+    st.session_state.messages.append({"role": role, "content": content})
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+# Display the chat interface header
+st.markdown("<h1 style='text-align: center; color: #aaa;'>Chat Interface</h1>", unsafe_allow_html=True)
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+# Chat message display loop
+for message in st.session_state.messages:
+    role = message['role']
+    # Use a placeholder for avatar if needed, replace None with the URL if you have one
+    avatar_url = None if role == "user" else "https://path/to/your/avatar/image.jpg"
+    with st.chat_message(role, avatar=avatar_url):
+        st.markdown(message["content"])
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
-
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
-
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
-
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+# User input for the chat
+user_input = st.text_input("Enter your question:", key="chat_input")
+if st.button("Send"):
+    if user_input:  # Check if the input is not empty
+        add_message("user", user_input)
+        # Here you would typically process the input and generate a response
+        # For demonstration, let's simulate a simple echo response
+        simulated_response = f"You said: {user_input}"
+        add_message("assistant", simulated_response)
